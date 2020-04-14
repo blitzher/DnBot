@@ -1,6 +1,7 @@
 
 class Character:
-    def __init__(self, level, _str=0, dex=0, con=0, _int=0, wis=0, cha=0):
+    def __init__(self, name, level, _str=0, dex=0, con=0, _int=0, wis=0, cha=0):
+        self.name = name
         self.level = level
         self.stats = {
             'str':_str,
@@ -18,7 +19,9 @@ class Character:
     # instantiate a new character object from a json object
     @staticmethod
     def from_json(obj):
-        char = Character(obj['level'],
+        char = Character(
+            obj['name'],
+            obj['level'],
             _str=obj['stats']['str'],
             dex =obj['stats']['dex'],
             con =obj['stats']['con'],
@@ -32,6 +35,7 @@ class Character:
     # convert a character object to a json object
     def to_json(self):
         return {
+            'name' :self.name,
             'level':self.level,
             'stats':self.stats,
             'owner':self.owner

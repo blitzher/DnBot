@@ -1,22 +1,28 @@
 """
 discord bot to handle rerolls for characters in DnD
 """
-import discord, os, dotenv
+import discord, os, json
 import argparser, player
 
 token = os.getenv('DISCORD')
+if not token:
+    try:
+        with open("token.json", "r") as f:
+            token = json.load(f)['token']
+    except:
+        raise AttributeError("Couldn't locate token in environment variables or token file")
 prefix = "."
+with open('characters.json', 'r') as f:
+    all_characters = json.load(f)
 
 class BotClient(discord.Client):
     def __init__(self):
         discord.Client.__init__(self)
-        active_characters = []
+        self.active_characters = [player.Character.from_json(char) 
+                                  for char in all_characters]
     
     async def on_ready(self):
         print(f'{self.user} has connected to Discord')
-
-    def handle_command(self, command):
-        pass
 
     async def on_message(self, message : discord.Message):
         if message.author == self.user:
@@ -27,13 +33,16 @@ class BotClient(discord.Client):
 
         if command.startswith("add"):
             
-            char = self.parse_player(command[len('add')+len(prefix):])
+            self.parse_player(command[len('add')+len(prefix):])
 
-            await message.channel.send(char)
 
+    def save_json(self):
+        all_characters = [char.to_json() for char in self.active_characters]
+        with open("characters.json", 'w') as f:
+            json.dump(all_characters, f, indent=2)
 
     def parse_player(self, message : discord.Message):
-        args = ('level','name')
+        args = ('name','level')
         kwargs = {
             "str":0,
             "dex":0,
@@ -51,19 +60,18 @@ class BotClient(discord.Client):
         
         # pylint: disable=unexpected-keyword-arg
         char = player.Character(**parsed)
-        return char
-
-
-
-
-
-
+        char.set_owner(message.author)
+        self.active_characters.append(char)
 
 
 
 def main():
-    client = BotClient()
-    client.run(token)
+    global client
+    try:
+        client = BotClient()
+        #client.run(token)
+    finally:
+        client.save_json()
 
 if __name__ == '__main__':
     main()

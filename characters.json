@@ -1,0 +1,15 @@
+[
+  {
+    "name": "Ezran",
+    "level": "5",
+    "stats": {
+      "str": "9",
+      "dex": "15",
+      "con": "12",
+      "int": "9",
+      "wis": "17",
+      "cha": "10"
+    },
+    "owner": "None"
+  }
+]
