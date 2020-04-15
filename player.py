@@ -1,17 +1,25 @@
 
 class Character:
-    def __init__(self, name, level, _str=0, dex=0, con=0, _int=0, wis=0, cha=0):
+    def __init__(self, name="None", level=0, _str=0, dex=0, con=0, _int=0, wis=0, cha=0):
         self.name = name
         self.level = level
         self.stats = {
-            'str':_str,
-            'dex': dex,
-            'con': con,
-            'int':_int,
-            'wis': wis,
-            'cha': cha
+            'str':int(_str),
+            'dex':int( dex),
+            'con':int( con),
+            'int':int(_int),
+            'wis':int( wis),
+            'cha':int( cha)
         }
         self.owner = None
+
+        # import roll methods and bind to self
+        from roll_module import roll_initiative
+        from roll_module import roll_skill
+
+        self.roll_initiative = roll_initiative
+        self.roll_skill = roll_skill
+
 
     def __str__(self):
         return f"<Character Object at lvl {self.level}>"
@@ -35,10 +43,10 @@ class Character:
     # convert a character object to a json object
     def to_json(self):
         return {
-            'name' :self.name,
-            'level':self.level,
+            'name' :str(self.name),
+            'level':int(self.level),
             'stats':self.stats,
-            'owner':self.owner
+            'owner':str(self.owner)
             }
 
     def set_owner(self, user):
@@ -57,4 +65,4 @@ class Character:
         return self.get_modifier('dex')
 
     def get_proficiency(self):
-        return 2 + (self.level-1) // 4
+        return 2 + ((self.level-1) // 4)

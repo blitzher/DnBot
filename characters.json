@@ -1,15 +1,15 @@
 [
   {
-    "name": "Ezran",
-    "level": "5",
+    "name": "dude",
+    "level": 5,
     "stats": {
-      "str": "9",
-      "dex": "15",
-      "con": "12",
-      "int": "9",
-      "wis": "17",
-      "cha": "10"
+      "str": 14,
+      "dex": 17,
+      "con": 13,
+      "int": 10,
+      "wis": 15,
+      "cha": 9
     },
-    "owner": "None"
+    "owner": "skovborg#8553"
   }
 ]
