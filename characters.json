@@ -1,15 +1,41 @@
-[
-  {
-    "name": "dude",
-    "level": 5,
-    "stats": {
-      "str": 14,
-      "dex": 17,
-      "con": 13,
-      "int": 10,
-      "wis": 15,
-      "cha": 9
+{
+  "characters": [
+    {
+      "name": "dude",
+      "level": 5,
+      "stats": {
+        "str": 14,
+        "dex": 17,
+        "con": 13,
+        "int": 10,
+        "wis": 15,
+        "cha": 9
+      },
+      "owner": 0
     },
-    "owner": "skovborg#8553"
-  }
-]
+    {
+      "name": "Manly_Man",
+      "level": 17,
+      "stats": {
+        "str": 20,
+        "dex": 14,
+        "con": 12,
+        "int": 4,
+        "wis": 5,
+        "cha": 3
+      },
+      "owner": "skovborg#8553"
+    }
+  ],
+  "rolls": [
+    {
+      "name": "shortsword",
+      "roll": [
+        "2d6",
+        "+",
+        "3"
+      ],
+      "owner": "skovborg#8553"
+    }
+  ]
+}

@@ -11,7 +11,7 @@ class Character:
             'wis':int( wis),
             'cha':int( cha)
         }
-        self.owner = None
+        self.owner = 0
 
         # import roll methods and bind to self
         from roll_module import roll_initiative
@@ -46,10 +46,14 @@ class Character:
             'name' :str(self.name),
             'level':int(self.level),
             'stats':self.stats,
-            'owner':str(self.owner)
+            'owner':self.owner
             }
 
     def set_owner(self, user):
+        if type(user) != str:
+            user = str(user)
+        if user == "0":
+            user = 0
         self.owner = user
 
     def set_level(self, value):
@@ -66,3 +70,28 @@ class Character:
 
     def get_proficiency(self):
         return 2 + ((self.level-1) // 4)
+
+class Roll:
+    def __init__(self, name="None", roll="0", owner=0):
+        self.name = name
+        self.roll = roll
+        self.owner = owner
+
+    @staticmethod
+    def from_json(d):
+        return Roll(name=d['name'], roll=d['roll'], owner=d['owner'])
+
+    def to_json(self):
+        d = {
+            'name' : str(self.name),
+            'roll' : self.roll,
+            'owner': str(self.owner)
+        }
+        return d
+
+    def get_roll(self):
+        return self.roll
+
+    def set_owner(self, user):
+        self.owner = user
+

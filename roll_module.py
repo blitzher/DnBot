@@ -48,18 +48,20 @@ def autocomplete(message, options, case_sens = False):
     return None
 
 
-def d20(): return randint(1,20)
+def roll_die(i): return randint(1,i)
+def d20(): return roll_die(20)
+
 
 def roll_skill(char : player.Character, skill:str, prof=0, adv=0):
     rolls = [d20() for i in range(1 + abs(adv))]
     mod = char.get_modifier(skill)
 
     if adv >= 0:
-        result = max(rolls) + mod + (prof * char.get_proficiency())
+        result = max(rolls) + mod + int((prof * char.get_proficiency()))
     else:
-        result = min(rolls) + mod + (prof * char.get_proficiency())
+        result = min(rolls) + mod + int((prof * char.get_proficiency()))
 
-    return rolls, result
+    return rolls, int(result)
 
 def roll_initiative(char : player.Character, adv = False):
     rolls = [d20() for i in range(1 + adv)]
