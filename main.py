@@ -43,7 +43,7 @@ class BotClient(discord.Client):
             await self.handle_commands(command, arg, message)
 
     async def handle_commands(self, command, arg:list, message:discord.Message):
-        
+
         if command == 'help':
             action_display = f"""
                 ```
@@ -68,7 +68,7 @@ class BotClient(discord.Client):
 
             if len(arg) > 0:
 
-                add_message = """
+                add_message = f"""
                     ```
                     - {prefix}add <name> <lvl> str:<i> con:<i> dex:<i> int:<i> wis:<i> cha:<i>
                         Add a character to the database, and automatically claim them as your own
@@ -76,7 +76,7 @@ class BotClient(discord.Client):
                         Example usage:
                         {prefix}add Manly_Man 17 str:20 dex:14 con:12 int:4 wis:5 cha:3
                     ```"""
-                roll_message = """
+                roll_message = f"""
                     ```
                     - {prefix}roll <skill>
                     - {prefix}roll <dnd-dice>
@@ -95,12 +95,12 @@ class BotClient(discord.Client):
                         {prefix}roll 3d8 + 3 * 2    <:> Rolls 3d8, and adds 6, and sums them up
                         {prefix}roll shortsword_hit <:> Rolls a saved roll, in this case, shortsword
                         ```"""
-                me_message = """
+                me_message = f"""
                     ```
                     - {prefix}me
                         Display your currently claimed character
                         ```"""
-                set_message = """
+                set_message = f"""
                     ```
                     - {prefix}set <stat> <value>
                         Set the stat, str, int or another, to some new value
@@ -108,7 +108,7 @@ class BotClient(discord.Client):
                         Example usage:
                         {prefix}set strength 20
                         ```"""
-                save_message = """
+                save_message = f"""
                     ```
                     - {prefix}save <name> <dnd-dice>
                         Save some type of roll into the database. Can be used for weapons, spells
@@ -118,7 +118,7 @@ class BotClient(discord.Client):
                         {prefix}save shortsword-hit 1d20+2
                         {prefix}save shortsword-atk 1d6+1
                         ```"""
-                claim_message = """
+                claim_message = f"""
                     ```
                     - {prefix}claim <name>
                         Claim some character as your own. Character must be unowned, and your
@@ -157,30 +157,14 @@ class BotClient(discord.Client):
         if command == 'roll':
             char, _ = self.get_character(message.author)
             
-            
-            skill_roll = self.parse_roll(arg)
-            arbitrary_roll = self.parse_arbitrary_roll(arg)
-            saved_roll = self.get_saved_roll(arg, message.author)
-            if skill_roll:
-                skill, prof, adv, name = skill_roll
-            
-                rolls, result = char.roll_skill(char, skill, prof=prof, adv=adv)
-                action_display = f'Rolled {name} for {message.author.mention} : `{rolls}` with result **{result}**'
-                await message.channel.send(action_display)
-                return True
-            elif arbitrary_roll:
-                die, tossed, result = arbitrary_roll
-                action_display = f"Rolled `{die} <:> {tossed}` for {message.author.mention} with result **{int(result)}**"
-                await message.channel.send(action_display)
-                return True
-            elif saved_roll:
-                die, tossed, result = self.parse_arbitrary_roll(saved_roll)
-                action_display = f"Rolled `{die} <:> {tossed}` for {message.author.mention} with result **{int(result)}**"
-                await message.channel.send(action_display)
+            saved_roll = self.get_saved_roll(arg[0], message.author)
+            if saved_roll:
+                die, tossed, result = roll_module.parse(saved_roll, char)
             else:
-                action_display = f"Could not parse {arg} as a skill roll or an abitrary roll!"
-                await message.channel.send(action_display)
-                return False
+                die, tossed, result = roll_module.parse(arg, char)
+
+            action_display = f'Rolled `{die}` for {message.author.mention} : `{tossed}` with result **{int(result)}**'
+            await message.channel.send(action_display)
 
         if command == 'me':
             char, _ = self.get_character(message.author)
@@ -206,7 +190,7 @@ class BotClient(discord.Client):
             # make sure the following argument is an int
             try:
                 setto = int(arg[1])
-            except Exception as e:
+            except Exception as _:
                 action_display = f"Cannot set {skill} to {arg[1]}!"
                 await message.channel.send(action_display)
                 return False
@@ -218,10 +202,11 @@ class BotClient(discord.Client):
 
         if command == 'save':
             # save a type of roll, typically a weapon or spell
+            char, _ = self.get_character(message.author)
             name = arg[0]
-            roll = self.parse_arbitrary_roll(arg[1:])
+            roll = roll_module.parse(arg[1:], char)
             if roll:
-                roll = player.Roll(name=name, roll=arg[1:], owner=message.author)
+                roll = player.Roll(name=name, roll=arg[1:], owner=str(message.author))
                 self.active_rolls.append(roll)
                 self.save_json()
                 action_display = f"Succesfully saved `{name}` to database, claimed by {message.author.mention}!"
@@ -232,7 +217,7 @@ class BotClient(discord.Client):
         if command == 'claim':          
 
             action_display = False
-            for c, ch in enumerate(self.active_characters):
+            for _, ch in enumerate(self.active_characters):
                 if ch.name == arg[0] and ch.owner:
                     action_display = f"Character `{ch.name}` is already claimed!"
                 elif ch.name == arg[0] and not ch.owner:
@@ -249,8 +234,7 @@ class BotClient(discord.Client):
                 action_display = f"Character `{arg[0]}` could not be found. Add them using {prefix}add!"
 
             await message.channel.send(action_display)
-                    
-
+                
 
     def format_character(self, char:dict) -> discord.Embed:
 
@@ -276,6 +260,12 @@ class BotClient(discord.Client):
             if char.owner == str(owner):
                 return char, c
         return None
+
+    def get_saved_roll(self, roll_name:str, owner : discord.Member) -> player.Roll:
+        for roll in self.active_rolls:
+            if roll.owner == str(owner) and roll.name == roll_name:
+                return roll.get_roll()
+        return 
 
     def disown_character(self, owner : str) -> bool:
         char = self.get_character(owner)
@@ -316,77 +306,6 @@ class BotClient(discord.Client):
             print(e)
             return False  
 
-    def parse_roll(self, arg):
-        
-        call_skil = roll_module.autocomplete(arg[0], roll_module.skills)
-        if not call_skil: # if it cannot be recognized as a skill, return false
-            return False
-        skill = roll_module.skills[call_skil]
-
-        if len(arg) > 1:
-            appendage = arg[1]
-            prof = min(appendage.count("+"), 2)
-            if   "/" in appendage:
-                prof = 0.5
-            if   "x" in appendage:
-                adv = 1
-            elif "d" in appendage:
-                adv = -1
-            else:
-                adv = 0
-        else:
-            prof = 0
-            adv = 0
-
-        return skill, prof, adv, call_skil
-
-    def parse_arbitrary_roll(self, arg:list):
-        # get rid of all spaces
-        try:
-            arg = "".join(arg)
-            arg = arg.replace(" ", "")
-
-            tossed = []
-
-            def eval_die(s):
-                # evalute string of type '..' as a die
-                value = roll_module.roll_die(int(s))
-                tossed.append(value)
-                return value
-
-            def eval_mult(m, a):
-                # evaluate string of type 'm * a'
-                return float(m) * float(a)
-
-            # split into ['x * d..', int, 'x * int']
-            add_blocks = arg.split("+")
-            
-            for c, block in enumerate(add_blocks):
-                # assert that the first index is an integer
-                try: int(block[0])
-                except Exception as e: block = "1" + block
-
-                # evaluate the die, if it is there
-                if re.search(r'^[\d]+d[\d]+$', block):   # if block looks like "xx d ii"
-                    multiplier, die = block.split("d")
-                    add_blocks[c] = sum(eval_die(die) for i in range(int(multiplier)))
-                elif re.search(r"^[\d]+\*[\d]+$", block): # if block looks like "x * i"
-                    multiplier, i = block.split("*")
-                    add_blocks[c] = eval_mult(multiplier, i)
-                else: # block should look like 'i'
-                    add_blocks[c] = int(block)
-                    
-            return "".join(arg), tossed, sum(add_blocks)
-        except Exception as e: # if encountering an error parsing arg, return false
-            print(e)
-            return False
-
-    def get_saved_roll(self, arg:list, owner : str):
-        for roll in self.active_rolls:
-            if roll.owner == str(owner) and roll.name == arg[0]:
-                return roll.get_roll()
-        return 
-                
 
 def main():
     client = BotClient()

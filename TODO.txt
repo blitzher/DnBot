@@ -1,0 +1,3 @@
+# Figure out problem with "set level"
+# Implement proficiencies
+# Implement command for showing all saved rolls

@@ -36,6 +36,34 @@
         "3"
       ],
       "owner": "skovborg#8553"
+    },
+    {
+      "name": "poison",
+      "roll": [
+        "2d6kh1"
+      ],
+      "owner": "skovborg#8553"
+    },
+    {
+      "name": "unarmed",
+      "roll": [
+        "str+1"
+      ],
+      "owner": "skovborg#8553"
+    },
+    {
+      "name": "piss",
+      "roll": [
+        "1d20"
+      ],
+      "owner": "skovborg#8553"
+    },
+    {
+      "name": "pee",
+      "roll": [
+        "1d20"
+      ],
+      "owner": "skovborg#8553"
     }
   ]
 }

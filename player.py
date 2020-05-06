@@ -1,3 +1,4 @@
+from roll_module import skills
 
 class Character:
     def __init__(self, name="None", level=0, _str=0, dex=0, con=0, _int=0, wis=0, cha=0):
@@ -12,13 +13,6 @@ class Character:
             'cha':int( cha)
         }
         self.owner = 0
-
-        # import roll methods and bind to self
-        from roll_module import roll_initiative
-        from roll_module import roll_skill
-
-        self.roll_initiative = roll_initiative
-        self.roll_skill = roll_skill
 
 
     def __str__(self):
@@ -63,7 +57,9 @@ class Character:
         self.stats[stat] = value
 
     def get_modifier(self, stat):
-        return (self.stats[stat]-10) // 2
+
+        stat_type = skills[stat]
+        return (self.stats[stat_type]-10) // 2
 
     def get_initiative(self):
         return self.get_modifier('dex')
