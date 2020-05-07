@@ -1,4 +1,4 @@
-from roll_module import skills
+from roll_module import skills, autocomplete
 
 class Character:
     def __init__(self, name="None", level=0, _str=0, dex=0, con=0, _int=0, wis=0, cha=0):
@@ -12,6 +12,7 @@ class Character:
             'wis':int( wis),
             'cha':int( cha)
         }
+        self.proficiencies = {}
         self.owner = 0
 
 
@@ -32,6 +33,8 @@ class Character:
             cha =obj['stats']['cha']
             )
         char.set_owner(obj['owner'])
+        for skill, value in obj['proficiencies'].items():
+            char.set_proficiency(skill, value)
         return char
 
     # convert a character object to a json object
@@ -40,6 +43,7 @@ class Character:
             'name' :str(self.name),
             'level':int(self.level),
             'stats':self.stats,
+            'proficiencies':self.proficiencies,
             'owner':self.owner
             }
 
@@ -50,6 +54,15 @@ class Character:
             user = 0
         self.owner = user
 
+    def set_proficiency(self, skill, value):
+        if autocomplete(skill, skills):
+            self.proficiencies[skill] = value
+            return True
+        else:
+            return False
+    
+            
+
     def set_level(self, value):
         self.level = value
 
@@ -57,9 +70,12 @@ class Character:
         self.stats[stat] = value
 
     def get_modifier(self, stat):
-
+        if stat in self.proficiencies:
+            proficiency_modifier = self.proficiencies[stat] * self.get_proficiency()
+        else:
+            proficiency_modifier = 0
         stat_type = skills[stat]
-        return (self.stats[stat_type]-10) // 2
+        return proficiency_modifier + (self.stats[stat_type]-10) // 2
 
     def get_initiative(self):
         return self.get_modifier('dex')

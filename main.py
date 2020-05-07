@@ -48,7 +48,7 @@ class BotClient(discord.Client):
             action_display = f"""
                 ```
                 Usable commands:
-                - {prefix}add <name> <lvl> str:<i> con:<i> dex:<i> int:<i> wis:<i> cha:<i>
+                - {prefix}add <name> <lvl> [optional: str=0] [con=0] [dex=0] [int=0] [wis=0] [cha=0]
                     
                 - {prefix}roll <skill>
                 - {prefix}roll <dnd-dice>
@@ -58,7 +58,9 @@ class BotClient(discord.Client):
 
                 - {prefix}set <stat> <value>
 
-                - {prefix}save <name> <dnd-dice>
+                - {prefix}save <name> <roll>
+
+                - {prefix}pro <skill> [optional:value=1]
 
                 - {prefix}claim <name>
 
@@ -82,18 +84,19 @@ class BotClient(discord.Client):
                     - {prefix}roll <dnd-dice>
                     - {prefix}roll <saved-roll>
 
-                        Roll some dice. Use {prefix}roll <skill> <appendage> to add different kinds of rolls
-                        These can be;
-                        +:  proficiency
-                        ++: expertice
-                        /:  bardic proficiency
-                        x:  advantage
-                        d:  disadvantage
+                        Roll some dice. Use {prefix}roll <skill> [optional: adv/dis] to perform a skill check.
+                        Additionally, you can use {prefix}roll <stat-mod> in any place, to add a stat modifier.
+                        Example:
+                        {prefix}roll 1d8+strmod
+                        to roll the damage of a onehanded longsword.                       
 
                         Example usage:
-                        {prefix}roll acro +x        <:> Rolls Acrobatics with proficiency and advantage
+                        {prefix}roll acro adv       <:> Rolls Acrobatics with advantage
                         {prefix}roll 3d8 + 3 * 2    <:> Rolls 3d8, and adds 6, and sums them up
                         {prefix}roll shortsword_hit <:> Rolls a saved roll, in this case, shortsword
+
+                        # Note #
+                        Any roll that can be performed with {prefix}roll, can be saved using {prefix}save <name> <roll>
                         ```"""
                 me_message = f"""
                     ```
@@ -110,7 +113,7 @@ class BotClient(discord.Client):
                         ```"""
                 save_message = f"""
                     ```
-                    - {prefix}save <name> <dnd-dice>
+                    - {prefix}save <name> <roll>
                         Save some type of roll into the database. Can be used for weapons, spells
                         or whatever you wish.
 
@@ -146,6 +149,7 @@ class BotClient(discord.Client):
             char = self.parse_player(message)
             
             if char:
+                self.disown_character(message.author)
                 char.set_owner(message.author)
                 self.active_characters.append(char)
                 self.save_json()
@@ -167,19 +171,38 @@ class BotClient(discord.Client):
             await message.channel.send(action_display)
 
         if command == 'me':
-            char, _ = self.get_character(message.author)
-            if not char:
-                action_display = "Could not find character belonging to you!"
-                await message.channel.send(action_display)
-                return
-            else:
-                action_display = self.format_character(char.to_json())
-                await message.channel.send(embed=action_display)
+            if len(arg) == 0:
+                try:
+                    char, _ = self.get_character(message.author)
+                except:
+                    await message.channel.send("You currently do not own a character!")
+                    return
+                if not char:
+                    action_display = "Could not find character belonging to you!"
+                    await message.channel.send(action_display)
+                    return
+                else:
+                    action_display = self.format_character(char.to_json())
+                    await message.channel.send(embed=action_display)
+
+            elif arg[0] == 'rolls':
+                # print all saved rolls
+                pass
+            elif arg[0] == 'pros':
+                # print all proficiencies
+                try:
+                    char, _ = self.get_character(message.author)
+                except:
+                    await message.channel.send("You currently do not own a character!")
+                    return
+                embed = discord.Embed(title = char['name'])
+                for skill, value in char.proficiencies.items():
+                    pass
 
         if command == 'set':
             # set a skill for your owned character
-            _, index = self.get_character(message.author)
-            skill = roll_module.skills[roll_module.autocomplete(arg[0], roll_module.skills)]
+            char, index = self.get_character(message.author)
+            skill = roll_module.skills[roll_module.autocomplete(arg[0], roll_module.skills)[0]]
 
             # make sure a regular stat was entered
             if skill not in roll_module.stats:
@@ -200,6 +223,32 @@ class BotClient(discord.Client):
             action_display = f"Succesfully updated `{skill}` for `{char.name}` to `{setto}`"
             await message.channel.send(action_display)
 
+        if command == 'pro':
+            owner = message.author
+            char, _ = self.get_character(owner)
+            sucess = []
+            failed = []
+            for element in arg:
+                # each element looks like -> acro, ath=2, etc
+                if "=" in element:
+                    skill, value = element.split("=")
+                    skill, value = roll_module.autocomplete(skill, roll_module.skills), float(value)
+                else:
+                    skill, value = roll_module.autocomplete(element, roll_module.skills), 1.0
+                if char.set_proficiency(skill[0], value):
+                    sucess.append(skill)
+                else:
+                    failed.append(skill)
+            
+            if len(failed):
+                action_display = f"Successfully set proficiency for {message.author.mention}`: {sucess}` and failed for `{failed}`!"
+            else:
+                action_display = f"Successfully set proficiency for {message.author.mention}`: {sucess}`!"
+
+            self.save_json()
+            await message.channel.send(action_display)
+                    
+
         if command == 'save':
             # save a type of roll, typically a weapon or spell
             char, _ = self.get_character(message.author)
@@ -213,6 +262,13 @@ class BotClient(discord.Client):
             else:
                 action_display = f"Could not interpret {str(arg[1:])} as a valid roll!"
             await message.channel.send(action_display)
+
+        if command == 'del':
+            # delete a saved roll
+            roll_name = arg[0]
+            owner = str(message.author)
+
+            #if self.get_saved_roll(roll_name, owner)
 
         if command == 'claim':          
 
@@ -235,6 +291,8 @@ class BotClient(discord.Client):
 
             await message.channel.send(action_display)
                 
+    def delete_saved_roll(self):
+        pass
 
     def format_character(self, char:dict) -> discord.Embed:
 

@@ -31,6 +31,15 @@ skills = {
 stats = [
     "str", "con", "dex", "int", "wis", "cha"
     ]
+mods = {
+    'strmod' : 'Strength', # the base stats
+    'conmod' : 'Constitution',
+    'dexmod' : 'Dexterity',
+    'intmod' : 'Intelligence',
+    'wismod' : 'Wisdom',
+    'chamod' : 'Charisma',
+    'promod' : 'Proficiency'
+}
 dice = []
 def autocomplete(message, options, case_sens = False):
     """ attempt to autocomplete message amongs options """
@@ -222,11 +231,25 @@ def preprocess(arg, char):
     string = "".join(arg).replace(" ", "")
     stringcpy = string
 
+    # pre process modifiers
+    for mod in mods:
+        if not mod in stringcpy:
+            continue
+
+        roll_type = mods[mod]
+
+        if roll_type == 'Proficiency':
+            stringcpy = stringcpy.replace(mod, str(char.get_proficiency()))
+        else:
+            stringcpy = stringcpy.replace(mod, str(char.get_modifier(roll_type)))
+
     c = 0
+    # pre process all skill checks and advantage
     while c < len(string):
         _c = 1
         substring = string[c:c+_c]
 
+        # if current substring is a skill
         if autocomplete(substring, skills):
 
             while autocomplete(substring, skills) and c+_c <= len(string):
@@ -280,7 +303,9 @@ def preprocess(arg, char):
             stringcpy = stringcpy.replace(substring, replacement, 1)
             c += len(substring) - 1
 
+
         c += 1
+
 
     return stringcpy
 
@@ -312,7 +337,9 @@ def tokenize(string):
         elif Die.valid(block):
             blocks[c] = Die(block)
 
-    return blocks
+    # replace empty values with 0
+    final_blocks = [x if (x != '') else Value(0) for x in blocks]
+    return final_blocks
 
 def parse_exponent(tokens):
     # parse a list of tokens for exponents and return the result

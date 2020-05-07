@@ -1,3 +1,8 @@
 # Figure out problem with "set level"
+	- Removed due to source control
+	- TODO: Reimplement
 # Implement proficiencies
-# Implement command for showing all saved rolls
+	- DONE
+# Implement pure modifiers
+	- DONE
+# Implement command for showing all saved rolls	

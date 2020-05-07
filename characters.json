@@ -1,19 +1,6 @@
 {
   "characters": [
     {
-      "name": "dude",
-      "level": 5,
-      "stats": {
-        "str": 14,
-        "dex": 17,
-        "con": 13,
-        "int": 10,
-        "wis": 15,
-        "cha": 9
-      },
-      "owner": 0
-    },
-    {
       "name": "Manly_Man",
       "level": 17,
       "stats": {
@@ -23,6 +10,9 @@
         "int": 4,
         "wis": 5,
         "cha": 3
+      },
+      "proficiencies": {
+        "Athletics": 2.0
       },
       "owner": "skovborg#8553"
     }
@@ -62,6 +52,20 @@
       "name": "pee",
       "roll": [
         "1d20"
+      ],
+      "owner": "skovborg#8553"
+    },
+    {
+      "name": "sword",
+      "roll": [
+        "2d20kh1"
+      ],
+      "owner": "skovborg#8553"
+    },
+    {
+      "name": "a",
+      "roll": [
+        "acro"
       ],
       "owner": "skovborg#8553"
     }
