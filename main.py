@@ -54,7 +54,7 @@ class BotClient(discord.Client):
                 - {prefix}roll <dnd-dice>
                 - {prefix}roll <saved-roll>
 
-                - {prefix}me [optional:rolls, profs]
+                - {prefix}me [optional:rolls, proficiencies]
 
                 - {prefix}set <stat> <value>
 
@@ -103,8 +103,12 @@ class BotClient(discord.Client):
                         ```"""
                 me_message = f"""
                     ```
-                    - {prefix}me
+                    - {prefix}me [optional:rolls, proficiencies]
                         Display your currently claimed character
+
+                        If adding the optional parameter, show your currently saved rolls
+                        or current character proficiencies instead
+
                         ```"""
                 set_message = f"""
                     ```
@@ -216,7 +220,7 @@ class BotClient(discord.Client):
                     action_display = self.format_character(char.to_json())
                     await message.channel.send(embed=action_display)
 
-            elif arg[0] == 'rolls':
+            elif "rolls".startswith(arg[0]):
                 # print all saved rolls
                 own_rolls = [roll for roll in self.active_rolls if roll.owner == str(message.author)]
                 
@@ -229,18 +233,21 @@ class BotClient(discord.Client):
 
                 await message.channel.send(action_display)
 
-
-            elif arg[0] == 'pros':
+            elif "proficiencies".startswith(arg[0]):
                 # print all proficiencies
                 try:
                     char, _ = self.get_character(message.author)
                 except:
                     await message.channel.send("You currently do not own a character!")
                     return
-                embed = discord.Embed(title = char['name'])
+                action_display = f"""
+                {message.author.mention}'s character `{char.name}` proficiencies:\n"""
                 for skill, value in char.proficiencies.items():
-                    pass
-
+                    proficiency_display = f"`{skill}`: `{value}`\n"
+                    action_display += proficiency_display
+                
+                await message.channel.send(action_display)
+                    
         if command == 'set':
             # set a skill for your owned character
             char, index = self.get_character(message.author)

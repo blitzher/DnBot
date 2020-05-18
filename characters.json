@@ -17,7 +17,7 @@
         "Persuasion": 1.0,
         "Intimidation": 1.0
       },
-      "owner": 0
+      "owner": "skovborg#8553"
     },
     {
       "name": "Gari_Borge",
@@ -145,7 +145,7 @@
         "cha": 14
       },
       "proficiencies": {},
-      "owner": "skovborg#8553"
+      "owner": 0
     }
   ],
   "rolls": [
