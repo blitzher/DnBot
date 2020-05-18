@@ -173,6 +173,12 @@ class Value:
         else:
             return Value(self.val * other)
 
+    def __pow__(self, other):
+        if type(other) == Value:
+            return self.val * other.val
+        else:
+            return Value(self.val * other)
+
     def __repr__(self):
         return f"Val<{self.val}>"
 
@@ -221,11 +227,12 @@ class Operation:
                 return Value(sum(left.copy().evaluate() for i in range(int(right))))
             return Value(left.evaluate()** right.evaluate())
 
+
+
 def preprocess(arg, char):
     """
     do the preprocessing for a DnD roll
     converts skill checks to their respective die
-
     """
     
     string = "".join(arg).replace(" ", "")
@@ -305,7 +312,6 @@ def preprocess(arg, char):
 
 
         c += 1
-
 
     return stringcpy
 
@@ -397,6 +403,18 @@ def parse_remainder(tokens):
         result = (tokens[c].operate(result, tokens[c+1]))
 
     return result
+
+def parse_no_pre(arg):
+    global dice
+    dice = []
+    _tokens = tokenize(arg)
+    _parse_exponent = parse_exponent(_tokens)
+    _parse_multiplication = parse_multiplication(_parse_exponent)
+    _parse_remainder = parse_remainder(_parse_multiplication)
+
+    formatted_dice = ", ".join( (str(d) for d in dice) )
+
+    return arg, formatted_dice, _parse_remainder
 
 def parse(arg, char):
     global dice

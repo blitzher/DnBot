@@ -81,7 +81,7 @@ class Character:
         return self.get_modifier('dex')
 
     def get_proficiency(self):
-        return 2 + ((self.level-1) // 4)
+        return 2 + ((int(self.level-1)) // 4)
 
 class Roll:
     def __init__(self, name="None", roll="0", owner=0):

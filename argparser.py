@@ -15,8 +15,8 @@ def parse(message:Message, args:list, kwargs:dict):
     keyword_args = splitted[len(args):]
 
     for obj in keyword_args:
-        assert ':' in obj, "Keyword arguments must contain a ':'"
-        key, val = obj.split(":")
+        assert '=' in obj, "Keyword arguments must contain a '='"
+        key, val = obj.split("=")
         assert key in d, "Cannot assign new keyword to dict"
         d[key] = val
 

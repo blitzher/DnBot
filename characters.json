@@ -2,7 +2,7 @@
   "characters": [
     {
       "name": "Manly_Man",
-      "level": 17,
+      "level": 5,
       "stats": {
         "str": 20,
         "dex": 14,
@@ -12,8 +12,139 @@
         "cha": 3
       },
       "proficiencies": {
-        "Athletics": 2.0
+        "Athletics": 1.0,
+        "Acrobatics": 1.0,
+        "Persuasion": 1.0,
+        "Intimidation": 1.0
       },
+      "owner": 0
+    },
+    {
+      "name": "Gari_Borge",
+      "level": 4,
+      "stats": {
+        "str": 9,
+        "dex": 16,
+        "con": 9,
+        "int": 14,
+        "wis": 16,
+        "cha": 13
+      },
+      "proficiencies": {
+        "Insight": 1.0,
+        "Persuasion": 1.0,
+        "Religion": 1.0,
+        "Stealth": 1.0
+      },
+      "owner": "XLauge#6635"
+    },
+    {
+      "name": "Irakin",
+      "level": 4,
+      "stats": {
+        "str": 20,
+        "dex": 16,
+        "con": 16,
+        "int": 14,
+        "wis": 10,
+        "cha": 10
+      },
+      "proficiencies": {
+        "Perception": 1.0,
+        "Intimidation": 1.0,
+        "Athletics": 1.0,
+        "Deception": 1.0,
+        "Stealth": 1.0
+      },
+      "owner": "YoungMichael#8106"
+    },
+    {
+      "name": "Rukroft",
+      "level": 4,
+      "stats": {
+        "str": 9,
+        "dex": 16,
+        "con": 14,
+        "int": 10,
+        "wis": 10,
+        "cha": 17
+      },
+      "proficiencies": {
+        "Sleight of Hand": 1.0,
+        "Insight": 1.0,
+        "Deception": 2.0,
+        "Performance": 1.0,
+        "Persuasion": 2.0,
+        "Athletics": 0.5,
+        "Acrobatics": 0.5,
+        "Stealth": 0.5,
+        "Arcana": 0.5,
+        "History": 0.5,
+        "Investigation": 0.5,
+        "Nature": 0.5,
+        "Religion": 0.5,
+        "Animal Handling": 0.5,
+        "Medicine": 0.5,
+        "Perception": 0.5,
+        "Survival": 0.5,
+        "Intimidation": 1.0
+      },
+      "owner": "TheCraneFly#6402"
+    },
+    {
+      "name": "Bronos",
+      "level": 4,
+      "stats": {
+        "str": 7,
+        "dex": 20,
+        "con": 16,
+        "int": 12,
+        "wis": 15,
+        "cha": 18
+      },
+      "proficiencies": {
+        "Deception": 1.0,
+        "Insight": 1.0,
+        "Intimidation": 1.0,
+        "Perception": 1.0,
+        "Persuasion": 1.0,
+        "Sleight of Hand": 1.0,
+        "Stealth": 2.0
+      },
+      "owner": "Fredholt#9669"
+    },
+    {
+      "name": "Skip_Frolandian",
+      "level": 4,
+      "stats": {
+        "str": 14,
+        "dex": 19,
+        "con": 14,
+        "int": 12,
+        "wis": 16,
+        "cha": 13
+      },
+      "proficiencies": {
+        "Athletics": 1.0,
+        "Acrobatics": 1.0,
+        "Perception": 1.0,
+        "Insight": 1.0,
+        "Performance": 1.0
+      },
+      "owner": "Mikkel Bro#5241"
+    },
+    {
+      "name": "MercenaryAndreasMuggin",
+      "level": 2,
+      "stats": {
+        "str": 7,
+        "dex": 11,
+        "con": 6,
+        "int": 7,
+        "wis": 5,
+        "cha": 14
+      },
+      "proficiencies": {},
       "owner": "skovborg#8553"
     }
   ],
@@ -28,46 +159,141 @@
       "owner": "skovborg#8553"
     },
     {
-      "name": "poison",
-      "roll": [
-        "2d6kh1"
-      ],
-      "owner": "skovborg#8553"
-    },
-    {
-      "name": "unarmed",
-      "roll": [
-        "str+1"
-      ],
-      "owner": "skovborg#8553"
-    },
-    {
-      "name": "piss",
-      "roll": [
-        "1d20"
-      ],
-      "owner": "skovborg#8553"
-    },
-    {
-      "name": "pee",
-      "roll": [
-        "1d20"
-      ],
-      "owner": "skovborg#8553"
-    },
-    {
       "name": "sword",
       "roll": [
-        "2d20kh1"
+        "1d20+strmod+promod"
       ],
       "owner": "skovborg#8553"
     },
     {
-      "name": "a",
+      "name": "inflict_wounds",
       "roll": [
-        "acro"
+        "3d10"
       ],
-      "owner": "skovborg#8553"
+      "owner": "XLauge#6635"
+    },
+    {
+      "name": "hitdagger",
+      "roll": [
+        "1d20+7"
+      ],
+      "owner": "Fredholt#9669"
+    },
+    {
+      "name": "hitscimitar",
+      "roll": [
+        "1d20+6"
+      ],
+      "owner": "Fredholt#9669"
+    },
+    {
+      "name": "dmgdagger",
+      "roll": [
+        "1d4+dexmod"
+      ],
+      "owner": "Fredholt#9669"
+    },
+    {
+      "name": "dmgscimitar",
+      "roll": [
+        "1d6+1+dexmod"
+      ],
+      "owner": "Fredholt#9669"
+    },
+    {
+      "name": "sdmgdagger",
+      "roll": [
+        "1d4+dexmod+2d6"
+      ],
+      "owner": "Fredholt#9669"
+    },
+    {
+      "name": "sdmgscimitar",
+      "roll": [
+        "1d6+1+dexmod+2d6"
+      ],
+      "owner": "Fredholt#9669"
+    },
+    {
+      "name": "shitdagger",
+      "roll": [
+        "1d20+7"
+      ],
+      "owner": "Fredholt#9669"
+    },
+    {
+      "name": "shitscimitar",
+      "roll": [
+        "1d20+6"
+      ],
+      "owner": "Fredholt#9669"
+    },
+    {
+      "name": "mwd",
+      "roll": [
+        "1d4+dexmod"
+      ],
+      "owner": "Mikkel Bro#5241"
+    },
+    {
+      "name": "ad",
+      "roll": [
+        "1d6+dexmod"
+      ],
+      "owner": "Mikkel Bro#5241"
+    },
+    {
+      "name": "hrap",
+      "roll": [
+        "1d20+dexmod+promod"
+      ],
+      "owner": "TheCraneFly#6402"
+    },
+    {
+      "name": "drap",
+      "roll": [
+        "1d8+dexmod+2"
+      ],
+      "owner": "TheCraneFly#6402"
+    },
+    {
+      "name": "mwh",
+      "roll": [
+        "1d20",
+        "+",
+        "dexmod",
+        "+",
+        "promod"
+      ],
+      "owner": "Mikkel Bro#5241"
+    },
+    {
+      "name": "hw",
+      "roll": [
+        "chamod+promod+1d4"
+      ],
+      "owner": "TheCraneFly#6402"
+    },
+    {
+      "name": "hls1",
+      "roll": [
+        "1d20+1+strmod+promod"
+      ],
+      "owner": "YoungMichael#8106"
+    },
+    {
+      "name": "dls1",
+      "roll": [
+        "1d8+1+strmod"
+      ],
+      "owner": "YoungMichael#8106"
+    },
+    {
+      "name": "bow",
+      "roll": [
+        "1d8+3"
+      ],
+      "owner": "YoungMichael#8106"
     }
   ]
 }
