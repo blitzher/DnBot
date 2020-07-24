@@ -85,7 +85,7 @@ class Die:
         self.evaulated = False
         self.tossed = []
         self.value = 0
-        self.average = (self.die/2) + 0.5
+        self.average = mult * (die/2 + 0.5)
 
     def __repr__(self):
         return f"Die<{self.mult}d{self.die}{self.appendage}>"
@@ -396,7 +396,7 @@ def parse_multiplication(tokens):
     return after_multi
 
 
-def parse_remainder(tokens, average=False):
+def parse_remainder(tokens, average):
     # parse a list of tokens for addition and subtraction and return the result
     result = Value(0)
 
@@ -440,7 +440,7 @@ def parse(arg, char, average=False):
     _tokens = tokenize(_preprocess)
     _parse_exponent = parse_exponent(_tokens)
     _parse_multiplication = parse_multiplication(_parse_exponent)
-    _parse_remainder = parse_remainder(_parse_multiplication)
+    _parse_remainder = parse_remainder(_parse_multiplication, average)
 
     formatted_dice = ", ".join((str(d) for d in dice))
 
