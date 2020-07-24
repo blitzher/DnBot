@@ -1,8 +1,15 @@
 """
 discord bot to handle rerolls for characters in DnD
 """
-import discord, os, json, re
-import argparser, player
+import discord
+import os
+import json
+import re
+import datetime
+import threading
+import time
+import argparser
+import player
 import roll_module
 from textwrap import dedent
 
@@ -13,28 +20,30 @@ if not token:
         with open("token.json", "r") as f:
             token = json.load(f)['token']
     except:
-        raise AttributeError("Couldn't locate token in environment variables or token file")
+        raise AttributeError(
+            "Couldn't locate token in environment variables or token file")
 prefix = "."
 with open('characters.json', 'r') as f:
     jfile = json.load(f)
     all_characters = jfile['characters']
     all_rolls = jfile['rolls']
 
+
 class BotClient(discord.Client):
     def __init__(self):
         discord.Client.__init__(self)
-        self.active_characters = [player.Character.from_json(char) 
+        self.active_characters = [player.Character.from_json(char)
                                   for char in all_characters]
         self.active_rolls = [player.Roll.from_json(roll)
-                                for roll in all_rolls]
-    
+                             for roll in all_rolls]
+
     async def on_ready(self):
         print(f'{self.user} has connected to Discord')
 
-    async def on_message(self, message : discord.Message):
+    async def on_message(self, message: discord.Message):
         if message.author == self.user:
-            return # Don't respond to own messages
-        
+            return  # Don't respond to own messages
+
         if message.content.startswith('.'):
             command = message.content[1:]
             command = command.split(" ")
@@ -42,7 +51,7 @@ class BotClient(discord.Client):
             command = command[0]
             await self.handle_commands(command, arg, message)
 
-    async def handle_commands(self, command, arg:list, message:discord.Message):
+    async def handle_commands(self, command, args: list, message: discord.Message):
 
         if command == 'help':
             action_display = f"""
@@ -68,7 +77,7 @@ class BotClient(discord.Client):
                 ```
             """
 
-            if len(arg) > 0:
+            if len(args) > 0:
 
                 add_message = f"""
                     ```
@@ -150,23 +159,22 @@ class BotClient(discord.Client):
                         ```"""
 
                 switcher = {
-                    'add':add_message,
-                    'roll':roll_message,
-                    'me':me_message,
-                    'set':set_message,
-                    'pro':pro_message,
-                    'save':save_message,
-                    'claim':claim_message
+                    'add': add_message,
+                    'roll': roll_message,
+                    'me': me_message,
+                    'set': set_message,
+                    'pro': pro_message,
+                    'save': save_message,
+                    'claim': claim_message
                 }
 
-                action_display = switcher[arg[0]]
-
+                action_display = switcher[args[0]]
 
             await message.channel.send(dedent(action_display))
 
         if command == 'add':
             char = self.parse_player(message)
-            
+
             if char:
                 self.disown_character(message.author)
                 char.set_owner(message.author)
@@ -179,10 +187,10 @@ class BotClient(discord.Client):
 
         if command == 'roll':
 
-            if arg[0] == 'stats':
+            if args[0] == 'stats':
                 action_display = f"Rolling stats for {message.author.mention}..."
                 await message.channel.send(action_display)
-                
+
                 roll = "4d6dl1"
                 action_display = []
                 for _ in range(6):
@@ -193,20 +201,38 @@ class BotClient(discord.Client):
                 return
 
             char, _ = self.get_character(message.author)
-            
-            # replace saved rolls by their roll
-            for c in range(len(arg)):
-                saved_roll = self.get_saved_roll(arg[c], message.author)
-                if saved_roll:
-                    arg[c] = "".join(saved_roll)
 
-            die, tossed, result = roll_module.parse(arg, char)
+            # replace saved rolls by their roll
+            for c in range(len(args)):
+                saved_roll = self.get_saved_roll(args[c], message.author)
+                if saved_roll:
+                    args[c] = "".join(saved_roll)
+
+            die, tossed, result = roll_module.parse(args, char)
 
             action_display = f'Rolled `{die}` for {message.author.mention} : `{tossed}` with result **{int(result)}**'
             await message.channel.send(action_display)
 
+        if command == 'avg':
+
+            char, _ = self.get_character(message.author)
+
+            # replace saved rolls by their roll
+            for c in range(len(args)):
+                saved_roll = self.get_saved_roll(args[c], message.author)
+                if saved_roll:
+                    args[c] = "".join(saved_roll)
+
+            die, tossed, result = roll_module.parse(args, char, average=True)
+
+            action_display = f'Rolled average of `{die}` for {message.author.mention} with result **{int(result)}**'
+            await message.channel.send(action_display)
+
+        if command == '__raise__':
+            raise Exception("Exception demanded")
+
         if command == 'me':
-            if len(arg) == 0:
+            if len(args) == 0:
                 try:
                     char, _ = self.get_character(message.author)
                 except:
@@ -220,10 +246,11 @@ class BotClient(discord.Client):
                     action_display = self.format_character(char.to_json())
                     await message.channel.send(embed=action_display)
 
-            elif "rolls".startswith(arg[0]):
+            elif "rolls".startswith(args[0]):
                 # print all saved rolls
-                own_rolls = [roll for roll in self.active_rolls if roll.owner == str(message.author)]
-                
+                own_rolls = [
+                    roll for roll in self.active_rolls if roll.owner == str(message.author)]
+
                 action_display = f"""
                 {message.author.mention}'s rolls:\n"""
 
@@ -233,7 +260,7 @@ class BotClient(discord.Client):
 
                 await message.channel.send(action_display)
 
-            elif "proficiencies".startswith(arg[0]):
+            elif "proficiencies".startswith(args[0]):
                 # print all proficiencies
                 try:
                     char, _ = self.get_character(message.author)
@@ -245,25 +272,26 @@ class BotClient(discord.Client):
                 for skill, value in char.proficiencies.items():
                     proficiency_display = f"`{skill}`: `{value}`\n"
                     action_display += proficiency_display
-                
+
                 await message.channel.send(action_display)
-                    
+
         if command == 'set':
             # set a skill for your owned character
             char, index = self.get_character(message.author)
-            skill = roll_module.skills[roll_module.autocomplete(arg[0], roll_module.skills)[0]]
+            skill = roll_module.skills[roll_module.autocomplete(
+                args[0], roll_module.skills)[0]]
 
             # make sure a regular stat was entered
             if skill not in roll_module.stats:
-                action_display = f"Cannot set {arg[0]} on character!"
+                action_display = f"Cannot set {args[0]} on character!"
                 await message.channel.send(action_display)
                 return False
 
             # make sure the following argument is an int
             try:
-                setto = int(arg[1])
+                setto = int(args[1])
             except Exception as _:
-                action_display = f"Cannot set {skill} to {arg[1]}!"
+                action_display = f"Cannot set {skill} to {args[1]}!"
                 await message.channel.send(action_display)
                 return False
 
@@ -277,18 +305,20 @@ class BotClient(discord.Client):
             char, _ = self.get_character(owner)
             sucess = []
             failed = []
-            for element in arg:
+            for element in args:
                 # each element looks like -> acro, ath=2, etc
                 if "=" in element:
                     skill, value = element.split("=")
-                    skill, value = roll_module.autocomplete(skill, roll_module.skills), float(value)
+                    skill, value = roll_module.autocomplete(
+                        skill, roll_module.skills), float(value)
                 else:
-                    skill, value = roll_module.autocomplete(element, roll_module.skills), 1.0
+                    skill, value = roll_module.autocomplete(
+                        element, roll_module.skills), 1.0
                 if char.set_proficiency(skill[0], value):
                     sucess.append(skill)
                 else:
                     failed.append(skill)
-            
+
             if len(failed):
                 action_display = f"Successfully set proficiency for {message.author.mention}`: {sucess}` and failed for `{failed}`!"
             else:
@@ -296,14 +326,15 @@ class BotClient(discord.Client):
 
             self.save_json()
             await message.channel.send(action_display)
-                    
+
         if command == 'save':
             # save a type of roll, typically a weapon or spell
             char, _ = self.get_character(message.author)
-            name = arg[0]
-            roll = roll_module.parse(arg[1:], char)
+            name = args[0]
+            roll = roll_module.parse(args[1:], char)
             if roll:
-                roll = player.Roll(name=name, roll=arg[1:], owner=str(message.author))
+                roll = player.Roll(
+                    name=name, roll=args[1:], owner=str(message.author))
 
                 # make sure it isnt already saved
                 self.delete_saved_roll(name, message.author)
@@ -312,12 +343,12 @@ class BotClient(discord.Client):
                 self.save_json()
                 action_display = f"Succesfully saved `{name}` to database, claimed by {message.author.mention}!"
             else:
-                action_display = f"Could not interpret {str(arg[1:])} as a valid roll!"
+                action_display = f"Could not interpret {str(args[1:])} as a valid roll!"
             await message.channel.send(action_display)
 
         if command == 'del':
             # delete a saved roll
-            roll_name = arg[0]
+            roll_name = args[0]
 
             if self.delete_saved_roll(roll_name, message.author):
                 action_display = f"Succesfully deleted `{roll_name}`!"
@@ -325,15 +356,14 @@ class BotClient(discord.Client):
                 action_display = f"Could not find `{roll_name}` owned by you!"
             await message.channel.send(action_display)
 
-        if command == 'claim':          
+        if command == 'claim':
 
             action_display = False
             for _, ch in enumerate(self.active_characters):
-                if ch.name == arg[0] and ch.owner:
+                if ch.name == args[0] and ch.owner:
                     action_display = f"Character `{ch.name}` is already claimed!"
-                elif ch.name == arg[0] and not ch.owner:
+                elif ch.name == args[0] and not ch.owner:
 
-                    
                     # if you already own a character, remove you as owner
                     self.disown_character(message.author)
                     # set message author to owner
@@ -342,11 +372,11 @@ class BotClient(discord.Client):
                     action_display = f"Succesfully claimed `{ch.name}`!"
                     break
             if not action_display:
-                action_display = f"Character `{arg[0]}` could not be found. Add them using {prefix}add!"
+                action_display = f"Character `{args[0]}` could not be found. Add them using {prefix}add!"
 
             await message.channel.send(action_display)
 
-    def format_character(self, char:dict) -> discord.Embed:
+    def format_character(self, char: dict) -> discord.Embed:
 
         def get(s):
             return "{:3}".format(char['stats'][s])
@@ -362,30 +392,29 @@ class BotClient(discord.Client):
         `INT:{get('int')} - WIS:{get('wis')} - CHA:{get('cha')}`
         """.strip()
 
-        #embed.add_field()
+        # embed.add_field()
         return embed
 
-    def get_character(self, owner : str) -> (player.Character, int):
+    def get_character(self, owner: str) -> (player.Character, int):
         for c, char in enumerate(self.active_characters):
             if char.owner == str(owner):
                 return char, c
         return None
 
-    def get_saved_roll(self, roll_name:str, owner : discord.Member) -> player.Roll:
+    def get_saved_roll(self, roll_name: str, owner: discord.Member) -> player.Roll:
         for roll in self.active_rolls:
             if roll.owner == str(owner) and roll_module.autocomplete(roll_name, [roll.name]):
                 return roll.get_roll()
-        return 
+        return
 
-    def delete_saved_roll(self, roll_name:str, owner :discord.Member) -> bool:
+    def delete_saved_roll(self, roll_name: str, owner: discord.Member) -> bool:
         for c, roll in enumerate(self.active_rolls):
             if roll.owner == str(owner) and roll.name == roll_name:
                 del self.active_rolls[c]
                 return True
         return False
 
-
-    def disown_character(self, owner : str) -> bool:
+    def disown_character(self, owner: str) -> bool:
         char = self.get_character(owner)
         if char:
             _, index = char
@@ -400,29 +429,29 @@ class BotClient(discord.Client):
         with open("characters.json", 'w') as f:
             json.dump(d, f, indent=2)
 
-    def parse_player(self, message : discord.Message):
-        args = ('name','level')
+    def parse_player(self, message: discord.Message):
+        args = ('name', 'level')
         kwargs = {
-            "str":0,
-            "dex":0,
-            "con":0,
-            "int":0,
-            "wis":0,
-            "cha":0
+            "str": 0,
+            "dex": 0,
+            "con": 0,
+            "int": 0,
+            "wis": 0,
+            "cha": 0
         }
-        
+
         try:
-            parsed = argparser.parse(message, args, kwargs) 
+            parsed = argparser.parse(message, args, kwargs)
             # sort out namespace error, with str and int
             parsed['_str'] = parsed.pop('str')
             parsed['_int'] = parsed.pop('int')
-            
+
             # pylint: disable=unexpected-keyword-arg
             char = player.Character(**parsed)
             return char
-        except Exception as e: # if encountering an error parsing arg as a player, return false
+        except Exception as e:  # if encountering an error parsing arg as a player, return false
             print(e)
-            return False  
+            return False
 
 
 def main():
@@ -431,6 +460,7 @@ def main():
         client.run(token)
     finally:
         client.save_json()
+
 
 if __name__ == '__main__':
     main()

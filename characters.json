@@ -7,7 +7,7 @@
         "str": 20,
         "dex": 14,
         "con": 12,
-        "int": 4,
+        "int": 8,
         "wis": 5,
         "cha": 3
       },
@@ -17,7 +17,7 @@
         "Persuasion": 1.0,
         "Intimidation": 1.0
       },
-      "owner": "skovborg#8553"
+      "owner": 0
     },
     {
       "name": "Gari_Borge",
@@ -54,7 +54,8 @@
         "Intimidation": 1.0,
         "Athletics": 1.0,
         "Deception": 1.0,
-        "Stealth": 1.0
+        "Stealth": 1.0,
+        "Survival": 1.0
       },
       "owner": "YoungMichael#8106"
     },
@@ -146,6 +147,25 @@
       },
       "proficiencies": {},
       "owner": 0
+    },
+    {
+      "name": "EzranFangwild",
+      "level": 5,
+      "stats": {
+        "str": 9,
+        "dex": 15,
+        "con": 13,
+        "int": 9,
+        "wis": 17,
+        "cha": 12
+      },
+      "proficiencies": {
+        "Perception": 1.0,
+        "Survival": 1.0,
+        "Nature": 1.0,
+        "Religion": 1.0
+      },
+      "owner": "skovborg#8553"
     }
   ],
   "rolls": [
@@ -187,23 +207,9 @@
       "owner": "Fredholt#9669"
     },
     {
-      "name": "dmgdagger",
-      "roll": [
-        "1d4+dexmod"
-      ],
-      "owner": "Fredholt#9669"
-    },
-    {
       "name": "dmgscimitar",
       "roll": [
         "1d6+1+dexmod"
-      ],
-      "owner": "Fredholt#9669"
-    },
-    {
-      "name": "sdmgdagger",
-      "roll": [
-        "1d4+dexmod+2d6"
       ],
       "owner": "Fredholt#9669"
     },
@@ -294,6 +300,20 @@
         "1d8+3"
       ],
       "owner": "YoungMichael#8106"
+    },
+    {
+      "name": "dmgdagger",
+      "roll": [
+        "1d4+1+dexmod"
+      ],
+      "owner": "Fredholt#9669"
+    },
+    {
+      "name": "sdmgdagger",
+      "roll": [
+        "1d4+1+dexmod+2d6"
+      ],
+      "owner": "Fredholt#9669"
     }
   ]
 }

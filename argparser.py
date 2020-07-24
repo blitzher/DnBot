@@ -1,7 +1,7 @@
 from discord import Message
 
 
-def parse(message:Message, args:list, kwargs:dict):
+def parse(message: Message, args: list, kwargs: dict):
 
     d = kwargs
 
@@ -9,9 +9,9 @@ def parse(message:Message, args:list, kwargs:dict):
     print(splitted)
     assert len(splitted) >= len(args), ("Must fill all args: %s" % args)
 
-    for argname, argval in zip(args,splitted):
+    for argname, argval in zip(args, splitted):
         d[argname] = argval
-    
+
     keyword_args = splitted[len(args):]
 
     for obj in keyword_args:
@@ -21,4 +21,3 @@ def parse(message:Message, args:list, kwargs:dict):
         d[key] = val
 
     return d
-        
