@@ -161,7 +161,6 @@ class Value:
     def __init__(self, val):
         self.val = float(val)
         self.type = -1
-        self.average = self.val
 
     def __add__(self, other):
         if type(other) == Value:
@@ -404,10 +403,11 @@ def parse_remainder(tokens, average):
     for c, _ in enumerate(tokens):
         if type(tokens[c]) != Die:
             continue
-        if not average:
-            tokens[c] = tokens[c].evaluate()
-        else:
+
+        if type(tokens[c] == Die and average):
             tokens[c] = tokens[c].average
+        else:
+            tokens[c] = tokens[c].evaluate()
 
     result = tokens[0]
 
