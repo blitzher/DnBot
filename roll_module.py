@@ -85,7 +85,7 @@ class Die:
         self.evaulated = False
         self.tossed = []
         self.value = 0
-        self.average = mult * (die/2 + 0.5)
+        self.average = Value(mult * (die/2 + 0.5))
 
     def __repr__(self):
         return f"Die<{self.mult}d{self.die}{self.appendage}>"
@@ -407,6 +407,7 @@ def parse_remainder(tokens, average):
         if type(tokens[c] == Die and average):
             tokens[c] = tokens[c].average
         else:
+            8
             tokens[c] = tokens[c].evaluate()
 
     result = tokens[0]
