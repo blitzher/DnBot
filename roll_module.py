@@ -404,10 +404,10 @@ def parse_remainder(tokens, average):
         if type(tokens[c]) != Die:
             continue
 
-        if type(tokens[c] == Die and average):
+        if type(tokens[c]) == Die and average:
             tokens[c] = tokens[c].average
         else:
-            8
+
             tokens[c] = tokens[c].evaluate()
 
     result = tokens[0]
@@ -427,7 +427,7 @@ def parse_no_pre(arg):
     _tokens = tokenize(arg)
     _parse_exponent = parse_exponent(_tokens)
     _parse_multiplication = parse_multiplication(_parse_exponent)
-    _parse_remainder = parse_remainder(_parse_multiplication)
+    _parse_remainder = parse_remainder(_parse_multiplication, False)
 
     formatted_dice = ", ".join((str(d) for d in dice))
 
