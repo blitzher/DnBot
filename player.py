@@ -1,20 +1,20 @@
 from roll_module import skills, autocomplete
 
+
 class Character:
     def __init__(self, name="None", level=0, _str=0, dex=0, con=0, _int=0, wis=0, cha=0):
         self.name = name
-        self.level = level
+        self.level = int(level)
         self.stats = {
-            'str':int(_str),
-            'dex':int( dex),
-            'con':int( con),
-            'int':int(_int),
-            'wis':int( wis),
-            'cha':int( cha)
+            'str': int(_str),
+            'dex': int(dex),
+            'con': int(con),
+            'int': int(_int),
+            'wis': int(wis),
+            'cha': int(cha)
         }
         self.proficiencies = {}
         self.owner = 0
-
 
     def __str__(self):
         return f"<Character Object at lvl {self.level}>"
@@ -26,12 +26,12 @@ class Character:
             obj['name'],
             obj['level'],
             _str=obj['stats']['str'],
-            dex =obj['stats']['dex'],
-            con =obj['stats']['con'],
+            dex=obj['stats']['dex'],
+            con=obj['stats']['con'],
             _int=obj['stats']['int'],
-            wis =obj['stats']['wis'],
-            cha =obj['stats']['cha']
-            )
+            wis=obj['stats']['wis'],
+            cha=obj['stats']['cha']
+        )
         char.set_owner(obj['owner'])
         for skill, value in obj['proficiencies'].items():
             char.set_proficiency(skill, value)
@@ -40,12 +40,12 @@ class Character:
     # convert a character object to a json object
     def to_json(self):
         return {
-            'name' :str(self.name),
-            'level':int(self.level),
-            'stats':self.stats,
-            'proficiencies':self.proficiencies,
-            'owner':self.owner
-            }
+            'name': str(self.name),
+            'level': int(self.level),
+            'stats': self.stats,
+            'proficiencies': self.proficiencies,
+            'owner': self.owner
+        }
 
     def set_owner(self, user):
         if type(user) != str:
@@ -60,8 +60,6 @@ class Character:
             return True
         else:
             return False
-    
-            
 
     def set_level(self, value):
         self.level = int(value)
@@ -71,7 +69,8 @@ class Character:
 
     def get_modifier(self, stat):
         if stat in self.proficiencies:
-            proficiency_modifier = self.proficiencies[stat] * self.get_proficiency()
+            proficiency_modifier = self.proficiencies[stat] * \
+                self.get_proficiency()
         else:
             proficiency_modifier = 0
         stat_type = skills[stat]
@@ -82,6 +81,7 @@ class Character:
 
     def get_proficiency(self):
         return 2 + (self.level-1) // 4
+
 
 class Roll:
     def __init__(self, name="None", roll="0", owner=0):
@@ -95,8 +95,8 @@ class Roll:
 
     def to_json(self):
         d = {
-            'name' : str(self.name),
-            'roll' : self.roll,
+            'name': str(self.name),
+            'roll': self.roll,
             'owner': str(self.owner)
         }
         return d
@@ -106,4 +106,3 @@ class Roll:
 
     def set_owner(self, user):
         self.owner = user
-
