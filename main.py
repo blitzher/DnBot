@@ -278,6 +278,13 @@ class BotClient(discord.Client):
         if command == 'set':
             # set a skill for your owned character
             char, index = self.get_character(message.author)
+
+            if (roll_module.autocomplete(args[0], 'level', 'lvl')):
+                char.set_level(int(args[1]))
+                action_display = f"Succesfully updated `level` for `{char.name}` to `{args[1]}`"
+            await message.channel.send(action_display)
+            return
+
             skill = roll_module.skills[roll_module.autocomplete(
                 args[0], roll_module.skills)[0]]
 
